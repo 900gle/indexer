@@ -22,6 +22,6 @@ def get_image_feature_vectors() :
     feature_set = np.squeeze(features)
 
     print(feature_set)
-    print("vector dims : " , len(feature_set))
+    print("vector dmis : " , len(feature_set))
 
 get_image_feature_vectors()

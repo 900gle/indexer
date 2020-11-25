@@ -1,8 +1,6 @@
-import json
 import time
 
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -20,21 +18,13 @@ def get_image_feature_vectors() :
     module_handle = "https://tfhub.dev/google/imagenet/mobilenet_v2_140_224/feature_vector/4"
     module = hub.load(module_handle)
 
-    # origin_image = "./images/origin.png"
-    origin_image = "./images/target3.png"
-    # origin_image = "./images/image_test1.png"
+    origin_image = "./images/origin.png"
     img = load_img(origin_image)
     features = module(img)
     feature_set = np.squeeze(features)
     print(feature_set)
     print("vector dmis : " , len(feature_set))
     return feature_set
-
-
-# get_image_feature_vectors()
-
-
-docs = []
 
 es = Elasticsearch(
     ['localhost'],
@@ -43,18 +33,27 @@ es = Elasticsearch(
     port=9200,
 )
 
-feature = get_image_feature_vectors()
-doc = {
-    "feature": feature,
-    "image_name": "target3.png",
-    "image_id": "3",
+script_query = {
+    "script_score": {
+        "query": {"match_all": {}},
+        "script": {
+            "source": "cosineSimilarity(params.query_vector, 'feature')",
+            "params": {"query_vector": get_image_feature_vectors()}
+        }
+    }
 }
 
-print(doc)
-res = es.index(index="tensor_images", id=3, body=doc)
-print(res['result'])
+search_start = time.time()
+response = es.search(
+    index="tensor_test",
+    body={
+        "query": script_query,
+        "_source": {"includes": ["image_name", "image_id"]}
+    }
+)
 
-es.indices.refresh(index="tensor_images")
+for hit in response["hits"]["hits"]:
+    print("id: {}, score: {}".format(hit["_id"], hit["_score"]))
+    print(hit["_source"])
+    print()
 
-# res = es.get(index="tensor_images", id='hTex1HUBmn0MvYB6KMOT')
-# print(res['_source'])
