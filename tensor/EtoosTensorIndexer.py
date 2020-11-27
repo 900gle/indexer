@@ -8,11 +8,16 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import numpy as np
 
-origin_image = "./images/image_test1.png"
-document_id = "1"
-
-
-
+# origin_image = "./images/image_test1.png"
+# origin_image = "./images/math1.jpeg"
+# origin_image = "./images/math_t.JPG"
+# origin_image = "./images/math_t2.png"
+# origin_image = "./images/math_t3.jpeg"
+# origin_image = "./images/math_t4.jpg"
+# origin_image = "./images/math_t5.png"
+# origin_image = "./images/math_t6.jpg"
+origin_image = "./images/math_t13.png"
+document_id = "14"
 
 def load_img(path):
     img = tf.io.read_file(path)
@@ -48,7 +53,7 @@ doc = {
 }
 
 print(doc)
-res = es.index(index="tensor_images", id=document_id, body=doc)
+res = es.index(index="tensor_images_test", id=document_id, body=doc)
 print(res['result'])
 
 es.indices.refresh(index="tensor_images")

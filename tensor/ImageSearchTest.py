@@ -6,17 +6,6 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import numpy as np
 
-
-origin_image = "./images/image_test1.png"
-# origin_image = "./images/math1.jpeg"
-# origin_image = "./images/math_t.JPG"
-# origin_image = "./images/math_t2.png"
-# origin_image = "./images/math_t3.jpeg"
-# origin_image = "./images/math_t4.jpg"
-# origin_image = "./images/math_t5.png"
-# origin_image = "./images/math_t6.jpg"
-# origin_image = "./images/math_t13.png"
-
 def load_img(path):
     img = tf.io.read_file(path)
     img = tf.io.decode_jpeg(img, channels=3)
@@ -29,6 +18,7 @@ def get_image_feature_vectors() :
     module_handle = "https://tfhub.dev/google/imagenet/mobilenet_v2_140_224/feature_vector/4"
     module = hub.load(module_handle)
 
+    origin_image = "./images/origin.png"
     img = load_img(origin_image)
     features = module(img)
     feature_set = np.squeeze(features)

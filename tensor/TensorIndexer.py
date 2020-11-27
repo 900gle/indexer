@@ -51,10 +51,10 @@ doc = {
 }
 
 print(doc)
-res = es.index(index="tensor_images", id=3, body=doc)
+res = es.index(index="tensor_images_test", id=3, body=doc)
 print(res['result'])
 
-es.indices.refresh(index="tensor_images")
+es.indices.refresh(index="tensor_images_test")
 
 # res = es.get(index="tensor_images", id='hTex1HUBmn0MvYB6KMOT')
 # print(res['_source'])
