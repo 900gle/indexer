@@ -9,9 +9,6 @@ from flask_restful import reqparse, abort, Api, Resource
 app = Flask(__name__)
 api = Api(app)
 
-filePath = "/Users/doo/project/opencv/web/src/main/resources/static/images/"
-tempPath = "/Users/doo/project/opencv/common/temp/"
-
 def load_img(path):
     img = tf.io.read_file(path)
     img = tf.io.decode_jpeg(img, channels=3)
@@ -21,10 +18,10 @@ def load_img(path):
 
 parser = reqparse.RequestParser()
 
-def getImageFeatureVectors(path, fileName):
+def getImageFeatureVectors(filePath):
     module_handle = "https://tfhub.dev/google/imagenet/mobilenet_v2_140_224/feature_vector/4"
     module = hub.load(module_handle)
-    img = load_img(path + fileName)
+    img = load_img(filePath)
     features = module(img)
     feature_set = np.squeeze(features)
     return feature_set
@@ -37,17 +34,12 @@ class NumpyEncoder(json.JSONEncoder):
 
 class Api(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('path', type=str, required=True, help="The 'path' field cannot be blank.")
-    parser.add_argument('fileName', type=str, required=True, help="The 'fileName' field cannot be blank.")
-
-    def get(self, fileName):
-
-        return {'vectors': json.dumps(getImageFeatureVectors(tempPath, fileName), cls=NumpyEncoder)}
-    def post(self, fileName):
+    parser.add_argument('filePath', type=str, required=True, help="The 'filePath' field cannot be blank.")
+    def post(self):
         data = Api.parser.parse_args()
-        return {'vectors': json.dumps(getImageFeatureVectors(tempPath, fileName), cls=NumpyEncoder)}
+        return {'vectors': json.dumps(getImageFeatureVectors(data['filePath']), cls=NumpyEncoder)}
 
-api.add_resource(Api, '/api/<string:fileName>')
+api.add_resource(Api, '/api')
 
 if __name__ == '__main__':
     app.run(debug=True)
